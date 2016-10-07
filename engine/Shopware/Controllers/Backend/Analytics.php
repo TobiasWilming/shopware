@@ -221,6 +221,43 @@ class Shopware_Controllers_Backend_Analytics extends Shopware_Controllers_Backen
     }
 
     /**
+     * Returns the query builder to fetch all available articles that are saled
+     *
+     * @return \Doctrine\DBAL\Query\QueryBuilder
+     */
+    private function getArticleQueryBuilder()
+    {
+        $builder = $this->getManager()->getDBALQueryBuilder();
+        $builder->select(array(
+            'articles.id',
+            'articles.name'
+        ))
+            ->from('s_order_details', 'details')
+            ->innerJoin('details', 's_articles', 'articles', 'articles.id = details.articleID')
+            ->innerJoin('details', 's_order', 'orders', 'orders.id = details.orderID')
+            ->andWhere('orders.status NOT IN (-1, 4)')
+            ->groupBy('details.articleID')
+            ->orderBy('details.name');
+
+        return $builder;
+    }
+
+    /**
+     * Get a list of saled articles
+     */
+    public function articlesSaleListAction()
+    {
+        $builder = $this->getArticleQueryBuilder();
+        $statement = $builder->execute();
+        $data = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        $this->View()->assign(array(
+            'data' => $data,
+            'success' => true
+        ));
+    }
+
+    /**
      * Get a list of installed shops
      */
     public function shopListAction()
@@ -506,6 +543,20 @@ class Shopware_Controllers_Backend_Analytics extends Shopware_Controllers_Backen
             $this->Request()->getParam('limit', null),
             $this->getFromDate(),
             $this->getToDate()
+        );
+
+        $this->send($result->getData(), $result->getTotalCount());
+    }
+
+    public function getArticleVariantSalesAction()
+    {
+        $result = $this->getRepository()->getProductVariantSales(
+            $this->Request()->getParam('start', 0),
+            $this->Request()->getParam('limit', null),
+            $this->getFromDate(),
+            $this->getToDate(),
+            $this->getSelectedArticleIds(),
+            $this->Request()->getParam('search', null)
         );
 
         $this->send($result->getData(), $result->getTotalCount());
@@ -1046,6 +1097,22 @@ class Shopware_Controllers_Backend_Analytics extends Shopware_Controllers_Backen
 
         if (!empty($selectedShopIds)) {
             return explode(',', $selectedShopIds);
+        }
+        return array();
+    }
+
+    /**
+     * helper to get the selected article ids
+     * if no article is selected the ids of all article are returned
+     *
+     * return array | articleIds
+     */
+    private function getSelectedArticleIds()
+    {
+        $selectedArticleIds = (string) $this->Request()->getParam('selectedArticle');
+
+        if (!empty($selectedArticleIds)) {
+            return explode(',', $selectedArticleIds);
         }
         return array();
     }

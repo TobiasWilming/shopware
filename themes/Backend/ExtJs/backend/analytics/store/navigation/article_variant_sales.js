@@ -22,43 +22,31 @@
  */
 
 /**
- * Analytics Main Window Class
+ * Analytics ArticleSales Store
  *
  * @category   Shopware
  * @package    Analytics
  * @copyright  Copyright (c) shopware AG (http://www.shopware.de)
  *
  */
-//{namespace name=backend/analytics/view/main}
-//{block name="backend/analytics/view/main/window"}
-Ext.define('Shopware.apps.Analytics.view.main.Window', {
-    extend: 'Enlight.app.Window',
-    cls: Ext.baseCSSPrefix + 'analytics',
-    layout: 'border',
-    title: '{s name=title}Statistics{/s}',
-    width: '90%',
-    height: '90%',
-    stateId: 'shopware-statistics-main-window',
-
-    initComponent: function () {
-        var me = this;
-
-        me.items = [
-            {
-                xtype: 'analytics-panel',
-                region: 'center',
-                shopStore: me.shopStore,
-                articleStore: me.articleStore
-            },
-            {
-                xtype: 'analytics-navigation',
-                region: 'west',
-                collapsible: true,
-                store: me.navigationStore
-            }
-        ];
-
-        me.callParent(arguments);
+//{block name="backend/analytics/store/navigation/article_variant_sales"}
+Ext.define('Shopware.apps.Analytics.store.navigation.ArticleVariantSales', {
+    extend: 'Ext.data.Store',
+    alias: 'widget.analytics-store-navigation-article_variant_sales',
+    remoteSort: true,
+    fields: [
+        'sales',
+        'name',
+        'ordernumber'
+    ],
+    proxy: {
+        type: 'ajax',
+        url: '{url controller=analytics action=getArticleVariantSales}',
+        reader: {
+            type: 'json',
+            root: 'data',
+            totalProperty: 'total'
+        }
     }
 });
 //{/block}

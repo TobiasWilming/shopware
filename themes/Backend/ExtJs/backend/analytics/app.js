@@ -67,6 +67,7 @@ Ext.define('Shopware.apps.Analytics', {
 
         'Shop',
         'Data',
+        'Article',
 
         'navigation.ArticleImpressions',
         'navigation.CalendarWeeks',
@@ -88,6 +89,7 @@ Ext.define('Shopware.apps.Analytics', {
         'navigation.PartnerRevenue',
         'navigation.ReferrerVisitors',
         'navigation.ArticleSales',
+        'navigation.ArticleVariantSales',
         'navigation.Customers',
         'navigation.SearchTerms',
         'navigation.SearchUrls',
@@ -149,6 +151,7 @@ Ext.define('Shopware.apps.Analytics', {
         'table.DeviceTypes',
         'table.ReferrerVisitors',
         'table.ArticleSales',
+        'table.ArticleVariantSales',
         'table.Customers',
         'table.SearchTerms',
         'table.SearchUrls',

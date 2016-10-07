@@ -47,8 +47,10 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
         { ref: 'panel', selector: 'analytics-panel' },
         { ref: 'layoutButton', selector: 'analytics-toolbar button[action=layout]' },
         { ref: 'shopSelection', selector: 'analytics-toolbar combobox[name=shop_selection]' },
+        { ref: 'articleSelection', selector: 'analytics-toolbar combobox[name=article_selection]' },
         { ref: 'fromField', selector: 'analytics-toolbar datefield[name=from_date]' },
-        { ref: 'toField', selector: 'analytics-toolbar datefield[name=to_date]' }
+        { ref: 'toField', selector: 'analytics-toolbar datefield[name=to_date]' },
+        { ref: 'searchfield', selector: 'analytics-toolbar textfield[name=searchfield]'}
     ],
 
     /**
@@ -66,7 +68,7 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
     currentStore: null,
 
     /**
-     * Creates the necessary event listener for this
+     * Creates the necessary event listener for thiqs
      * specific controller and opens a new Ext.window.Window
      * to display the subapplication
      *
@@ -81,8 +83,16 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
                 me.dataStore = Ext.widget('analytics-store-data', { shopStore: this });
             }
         });
+        // Load the article store
+        me.articleStore = me.subApplication.getStore('Article').load({
+            callback: function () {
+                me.dataStore = Ext.widget('analytics-store-data', { articleStore: this });
+            }
+        });
+
         me.navigationStore = me.subApplication.getStore('Navigation');
         me.mainWindow = me.getView('main.Window').create({
+            articleStore: me.articleStore,
             shopStore: me.shopStore,
             navigationStore: me.navigationStore
         }).show();
@@ -132,6 +142,9 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
                 change: function (button, item) {
                     me.getPanel().getLayout().setActiveItem(item.layout == 'table' ? 0 : 1);
                 }
+            },
+            'analytics-toolbar textfield[action=searchUser]': {
+                change:me.onSearchUser
             }
         });
 
@@ -139,6 +152,18 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
         me.getNavigation().getSelectionModel().select(
             me.navigationStore.getNodeById('overview')
         );
+    },
+
+    onSearchUser: function (field, value) {
+        var me = this,
+            searchString = Ext.String.trim(value),
+            store = me.currentStore;
+
+        store.getProxy().extraParams = {
+            search: searchString
+        };
+
+        store.load({});
     },
 
     /**
@@ -160,6 +185,10 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
 
         if (me.getShopSelection() && me.getShopSelection().getValue()) {
             url += '&selectedShops=' + me.getShopSelection().getValue().join(',');
+        }
+
+        if (me.getArticleSelection() && me.getArticleSelection().getValue()) {
+            url += '&selectedArticle=' + me.getArticleSelection().getValue().join(',');
         }
 
         var form = Ext.create('Ext.form.Panel', {
@@ -223,6 +252,10 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
             store.getProxy().extraParams.selectedShops = me.getShopSelection().getValue().toString();
         }
 
+        if (me.getArticleSelection() && me.getArticleSelection().getValue()) {
+            store.getProxy().extraParams.selectedArticle = me.getArticleSelection().getValue().toString();
+        }
+
         me.currentStore = store;
         me.currentNavigationItem = record;
 
@@ -262,6 +295,18 @@ Ext.define('Shopware.apps.Analytics.controller.Main', {
                     panel.add(table);
                 } else {
                     layout = false;
+                }
+                if (!!record.raw.multiArticle) {
+                    me.getSearchfield().show();
+                } else {
+                    me.getSearchfield().hide();
+                }
+
+
+                if (!!record.raw.multiArticle) {
+                    me.getArticleSelection().show();
+                } else {
+                    me.getArticleSelection().hide();
                 }
 
                 if (!!record.raw.multiShop) {

@@ -22,43 +22,26 @@
  */
 
 /**
- * Analytics Main Window Class
+ * Analytics Shop Store
  *
  * @category   Shopware
  * @package    Analytics
  * @copyright  Copyright (c) shopware AG (http://www.shopware.de)
  *
  */
-//{namespace name=backend/analytics/view/main}
-//{block name="backend/analytics/view/main/window"}
-Ext.define('Shopware.apps.Analytics.view.main.Window', {
-    extend: 'Enlight.app.Window',
-    cls: Ext.baseCSSPrefix + 'analytics',
-    layout: 'border',
-    title: '{s name=title}Statistics{/s}',
-    width: '90%',
-    height: '90%',
-    stateId: 'shopware-statistics-main-window',
-
-    initComponent: function () {
-        var me = this;
-
-        me.items = [
-            {
-                xtype: 'analytics-panel',
-                region: 'center',
-                shopStore: me.shopStore,
-                articleStore: me.articleStore
-            },
-            {
-                xtype: 'analytics-navigation',
-                region: 'west',
-                collapsible: true,
-                store: me.navigationStore
-            }
-        ];
-
-        me.callParent(arguments);
+//{block name="backend/analytics/store/article"}
+Ext.define('Shopware.apps.Analytics.store.Article', {
+    extend: 'Ext.data.Store',
+    alias: 'widget.analytics-store-article',
+    fields: ['id', 'name'],
+    //autoLoad: true,
+    proxy: {
+        type: 'ajax',
+        url: '{url action=articlesSaleList}',
+        reader: {
+            type: 'json',
+            root: 'data'
+        }
     }
 });
 //{/block}

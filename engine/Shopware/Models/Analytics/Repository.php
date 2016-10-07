@@ -473,6 +473,45 @@ class Repository
     }
 
     /**
+     * Returns a result which displays the sell count of each product.
+     * @param $offset
+     * @param $limit
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @param array $articleIds
+     * @return Result
+     *      array (
+     *          'sellCount' => '243',
+     *          'name' => 'ESD Download Artikel',
+     *          'ordernumber' => 'SW10196',
+     *      ),
+     *
+     *      array (
+     *          'sellCount' => '121',
+     *          'name' => 'Aufschlag bei Zahlungsarten',
+     *          'ordernumber' => 'SW10002841',
+     *      ),
+     */
+    public function getProductVariantSales(
+        $offset,
+        $limit,
+        \DateTime $from = null,
+        \DateTime $to = null,
+        array $articleIds = array(),
+        $search = null
+    ) {
+        $builder = $this->createProductVariantSalesBuilder($from, $to, $articleIds, $search);
+
+        $this->addPagination($builder, $offset, $limit);
+
+        $builder = $this->eventManager->filter('Shopware_Analytics_ProductSales', $builder, array(
+            'subject' => $this
+        ));
+
+        return new Result($builder);
+    }
+
+    /**
      * Returns a result which displays which kind of user created at which time orders.
      *
      * @param \DateTime $from
@@ -1599,5 +1638,49 @@ class Repository
             ->setMaxResults($limit);
 
         return $this;
+    }
+
+    /**
+     * Returns a query which selects the sell count of each product variant.
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @param array $articleIds
+     * @return DBALQueryBuilder
+     */
+    protected function createProductVariantSalesBuilder(
+        \DateTime $from = null,
+        \DateTime $to = null,
+        array $articleIds = array(),
+        $search = null
+    ) {
+        $builder = $builder = $this->connection->createQueryBuilder();
+        $builder->select(array(
+            'SUM(details.quantity) AS sales',
+            'details.name',
+            'details.articleordernumber as ordernumber'
+        ))
+            ->from('s_order_details', 'details')
+            ->innerJoin('details', 's_articles', 'articles', 'articles.id = details.articleID')
+            ->innerJoin('details', 's_order', 'orders', 'orders.id = details.orderID');
+
+        if (!empty($articleIds)) {
+            foreach ($articleIds as $articleId) {
+                $articleId = (int)$articleId;
+                $builder->orWhere(
+                    "articles.id =" . $articleId
+                );
+            }
+        }
+        $builder->andwhere('orders.status NOT IN (-1, 4)')
+            ->groupBy('details.articleordernumber')
+            ->orderBy('sales', 'DESC');
+        if (!empty($search)) {
+            //check the data in search
+            $builder->andWhere("details.name like '%" . $search . "%'");
+        }
+
+        $this->addDateRangeCondition($builder, $from, $to, 'orders.ordertime');
+
+        return $builder;
     }
 }

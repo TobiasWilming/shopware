@@ -22,7 +22,7 @@
  */
 
 /**
- * Analytics Main Window Class
+ * Analytics ArticleSales Table
  *
  * @category   Shopware
  * @package    Analytics
@@ -30,35 +30,47 @@
  *
  */
 //{namespace name=backend/analytics/view/main}
-//{block name="backend/analytics/view/main/window"}
-Ext.define('Shopware.apps.Analytics.view.main.Window', {
-    extend: 'Enlight.app.Window',
-    cls: Ext.baseCSSPrefix + 'analytics',
-    layout: 'border',
-    title: '{s name=title}Statistics{/s}',
-    width: '90%',
-    height: '90%',
-    stateId: 'shopware-statistics-main-window',
+//{block name="backend/analytics/view/table/article_variant_sales"}
+Ext.define('Shopware.apps.Analytics.view.table.ArticleVariantSales', {
+    extend: 'Shopware.apps.Analytics.view.main.Table',
+    alias: 'widget.analytics-table-article_variant_sales',
+    shopColumnName: '{s name="nav/items_sales"}Item by sales{/s}',
 
     initComponent: function () {
         var me = this;
 
-        me.items = [
-            {
-                xtype: 'analytics-panel',
-                region: 'center',
-                shopStore: me.shopStore,
-                articleStore: me.articleStore
-            },
-            {
-                xtype: 'analytics-navigation',
-                region: 'west',
-                collapsible: true,
-                store: me.navigationStore
+        me.columns = {
+            items: me.getColumns(),
+            defaults: {
+                flex: 1,
+                sortable: false
             }
-        ];
+        };
 
         me.callParent(arguments);
+    },
+
+    /**
+     * Creates the grid columns
+     *
+     * @return [array] grid columns
+     */
+    getColumns: function () {
+        return [
+            {
+                dataIndex: 'ordernumber',
+                text: '{s name="table/items_sales/ordernumber"}Ordernumber{/s}'
+            },
+            {
+                dataIndex: 'name',
+                text: '{s name="table/items_sales/article_name"}Article name{/s}'
+            },
+            {
+                dataIndex: 'sales',
+                align: 'right',
+                text: '{s name="table/items_sales/sales"}Sales{/s}'
+            }
+        ];
     }
 });
 //{/block}

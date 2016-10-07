@@ -44,7 +44,8 @@ Ext.define('Shopware.apps.Analytics.view.main.Panel', {
                 {
                     xtype: 'analytics-toolbar',
                     dock: 'top',
-                    shopStore: me.shopStore
+                    shopStore: me.shopStore,
+                    articleStore: me.articleStore
                 }
             ]
         });

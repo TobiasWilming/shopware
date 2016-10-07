@@ -96,6 +96,15 @@ Ext.define('Shopware.apps.Analytics.store.Navigation', {
                 leaf: true
             },
             {
+                id: 'article_variant_sales',
+                text: '{s name=nav/variant_sales}Variants{/s}',
+                store: 'analytics-store-navigation-article_variant_sales',
+                iconCls: 'sprite-article-sales',
+                comparable: true,
+                leaf: true,
+                multiArticle: true
+            },
+            {
                 id: 'customers',
                 text: '{s name=nav/customers}Portion New-/RegularCustomer{/s}',
                 store: 'analytics-store-navigation-customers',

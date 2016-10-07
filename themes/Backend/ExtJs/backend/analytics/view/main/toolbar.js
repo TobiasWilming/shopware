@@ -45,6 +45,24 @@ Ext.define('Shopware.apps.Analytics.view.main.Toolbar', {
                 {
                     xtype: 'combobox',
                     iconCls: 'sprite-gear',
+                    name: 'article_selection',
+                    queryMode: 'remote',
+                    fieldLabel: '{s name=toolbar/article_name}Article{/s}',
+                    store: me.articleStore,
+                    multiSelect: true,
+                    displayField: 'name',
+                    valueField: 'id'
+                },
+                {
+                    xtype:'textfield',
+                    name:'searchfield',
+                    action:'searchUser',
+                    enableKeyEvents:true,
+                    emptyText:'{s name=list_users/field/search}Search...{/s}'
+                },
+                {
+                    xtype: 'combobox',
+                    iconCls: 'sprite-gear',
                     name: 'shop_selection',
                     queryMode: 'remote',
                     fieldLabel: '{s name=toolbar/shop_name}Shop{/s}',
